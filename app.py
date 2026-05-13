@@ -37,22 +37,27 @@ with tab1:
     
     if "search_keyword" not in st.session_state:
         st.session_state["search_keyword"] = ""
+    if "auto_search" not in st.session_state:
+        st.session_state["auto_search"] = False
 
     with st.form("search_form"):
         keyword = st.text_input("검색할 키워드를 입력하세요 (예: 인공지능, 테슬라, 한국경제 등)", key="search_keyword")
         submitted = st.form_submit_button("검색 및 요약하기 🚀")
 
     st.markdown("**🔎 최근 주목받는 검색 추천 키워드**")
-    st.caption("추천 키워드를 클릭하면 검색창에 자동 반영됩니다.")
+    st.caption("추천 키워드를 클릭하면 자동으로 검색이 실행됩니다.")
 
     trending_topics = ["인공지능", "전기차", "우주산업", "반도체", "금리인상"]
     recommendation_cols = st.columns(len(trending_topics))
     for topic, col in zip(trending_topics, recommendation_cols):
         if col.button(topic):
             st.session_state["search_keyword"] = topic
+            st.session_state["auto_search"] = True
             st.experimental_rerun()
-    
-    if submitted and keyword:
+
+    should_search = (submitted or st.session_state["auto_search"]) and keyword
+    if should_search:
+        st.session_state["auto_search"] = False
         with st.spinner(f"'{keyword}'에 대한 최신 뉴스를 검색하고 분석 중입니다..."):
             try:
                 # [중요] JSON 강제 모드와 구글 검색 도구는 동시 사용 불가하므로, 프롬프트로 JSON 형태를 강제함
