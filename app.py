@@ -35,10 +35,23 @@ tab1, tab2, tab3 = st.tabs(["🔍 검색하기", "💾 저장된 뉴스 보기",
 with tab1:
     st.subheader("새로운 뉴스 검색")
     
+    if "search_keyword" not in st.session_state:
+        st.session_state["search_keyword"] = ""
+
     with st.form("search_form"):
-        keyword = st.text_input("검색할 키워드를 입력하세요 (예: 인공지능, 테슬라, 한국경제 등)")
+        keyword = st.text_input("검색할 키워드를 입력하세요 (예: 인공지능, 테슬라, 한국경제 등)", key="search_keyword")
         submitted = st.form_submit_button("검색 및 요약하기 🚀")
-        
+
+    st.markdown("**🔎 최근 주목받는 검색 추천 키워드**")
+    st.caption("추천 키워드를 클릭하면 검색창에 자동 반영됩니다.")
+
+    trending_topics = ["인공지능", "전기차", "우주산업", "반도체", "금리인상"]
+    recommendation_cols = st.columns(len(trending_topics))
+    for topic, col in zip(trending_topics, recommendation_cols):
+        if col.button(topic):
+            st.session_state["search_keyword"] = topic
+            st.experimental_rerun()
+    
     if submitted and keyword:
         with st.spinner(f"'{keyword}'에 대한 최신 뉴스를 검색하고 분석 중입니다..."):
             try:
